@@ -12,31 +12,31 @@
     <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
-    <div class="board">
+       <div class="board">
         <!-- To-Do Column -->
-        <div class="column" id="to-do">
+        <div class="column" id="to-do" ondrop="drop(event, 'to-do')" ondragover="allowDrop(event)">
             <h2>To-Do</h2>
             <hr />
             <div class="task-in-btn">
                 <input type="text" id="taskInput" class="task-input" placeholder="input task..." />
                 <button class="add-task-btn" onclick="addTask('to-do')">Add Task</button>
             </div>
-            <div class="task-container" ondragover="allowDrop(event)" ondrop="drop(event, 'to-do')"></div>
+            <div class="task-container"  ></div>
         </div>
 
         <!-- In-Progress Column -->
-        <div class="column" id="in-progress">
+        <div class="column" id="in-progress" ondrop="drop(event, 'in-progress')" ondragover="allowDrop(event)">
             <h2>In-Progress</h2>
             <hr />
-            <div class="task-container" ondragover="allowDrop(event)" ondrop="drop(event, 'in-progress')"></div>
+            <div class="task-container"  ></div>
             </div>
         </div>
 
         <!-- Done Column -->
-        <div class="column" id="done">
+        <div class="column" id="done" ondrop="drop(event, 'done')" ondragover="allowDrop(event)" >
             <h2>Done</h2>
             <hr />
-            <div class="task-container" ondragover="allowDrop(event)" ondrop="drop(event, 'in-progress')"></div>
+            <div class="task-container" ></div>
         </div>
     </div>
 
