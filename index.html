@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kanban Board</title>
+
+    <!-- Roboto font -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"/>
+
+    <!-- Link CSS -->
+    <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+    <div class="board">
+        <!-- To-Do Column -->
+        <div class="column" id="to-do">
+            <h2>To-Do</h2>
+            <hr />
+            <div class="task-in-btn">
+                <input type="text" id="taskInput" class="task-input" placeholder="input task..." />
+                <button class="add-task-btn" onclick="addTask('to-do')">Add Task</button>
+            </div>
+            <div class="task-container" ondragover="allowDrop(event)" ondrop="drop(event, 'to-do')"></div>
+        </div>
+
+        <!-- In-Progress Column -->
+        <div class="column" id="in-progress">
+            <h2>In-Progress</h2>
+            <hr />
+            <div class="task-container" ondragover="allowDrop(event)" ondrop="drop(event, 'in-progress')"></div>
+            </div>
+        </div>
+
+        <!-- Done Column -->
+        <div class="column" id="done">
+            <h2>Done</h2>
+            <hr />
+            <div class="task-container" ondragover="allowDrop(event)" ondrop="drop(event, 'in-progress')"></div>
+        </div>
+    </div>
+
+    <script>
+        let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+        // Allow dropping of tasks
+        function allowDrop(event) {
+            event.preventDefault();
+            console.log("Drop allowed");
+        }
+
+        // Handle drag events
+        function drag(event) {
+            event.dataTransfer.setData("text/plain", event.target.id);
+            console.log("Dragging task with ID:", event.target.id);
+        }
+
+        // Handle dropping of tasks into columns
+        function drop(event, columnId) {
+            event.preventDefault();
+            const data = event.dataTransfer.getData("text/plain");
+            const draggedElement = document.getElementById(data);
+
+            console.log(`Dropped task with ID: ${data} into column: ${columnId}`);
+
+            if (draggedElement) {
+                updateTaskStatus(data, columnId);
+
+                const targetColumn = document.getElementById(columnId).querySelector(".task-container");
+                targetColumn.appendChild(draggedElement);
+            }
+        }
+
+        // Update task status when moved to another column
+        function updateTaskStatus(taskId, newStatus) {
+            tasks = tasks.map((task) => {
+                if (task.id === taskId) {
+                    return {
+                        ...task,
+                        status: newStatus,
+                    };
+                }
+                return task;
+            });
+            updateLocalStorage();
+        }
+
+        //Add a new task
+        function addTask(columnId) {
+            const taskInput = document.getElementById("taskInput");
+            const taskContent = taskInput.value.trim();
+
+            if(taskContent !==""){
+                const newTask = {
+                    id: `task-${Date.now()}`, 
+                    content: taskContent,
+                    status: columnId,
+                };
+                tasks.push(newTask);
+                updateLocalStorage();
+                renderTasks();
+                taskInput.value ="";
+            }
+        }
+        
+        // Render task when the DOM is loaded
+        document.addEventListener("DOMContentLoaded", renderTasks);
+
+        function renderTasks() {
+            const columns = ["to-do", "in-progress", "done"];
+
+            columns.forEach((columnId) =>{
+                const column = document.getElementById(columnId);
+                const taskContainer = column.querySelector(".task-container");
+                taskContainer.innerHTML ="";
+
+                tasks.forEach((task) => {
+                    if(task.status === columnId){
+                        const taskElement = createTaskElement(task.content, task.id);
+                        taskContainer.appendChild(taskElement);
+                    }
+                });
+            });
+        }
+
+        // Create a new task element
+        function createTaskElement(content, id){
+            const task = document.createElement("div");
+            task.id = id;
+            task.className = "task";
+            task.draggable = true;
+            task.innerHTML = `${content} <span class="delete-btn" onclick="deleteTask('${id}')">X</span>`;
+
+
+            //Add dragstart event listener
+            task.addEventListener("dragstart", drag);
+
+            return task;
+        }
+
+        // Delete a task
+        function deleteTask(taskId) {
+            tasks = tasks.filter((task) => task.id !== taskId);
+            updateLocalStorage();
+            renderTasks();
+        }
+        
+        // Update localStorage with the latest tasks
+        function updateLocalStorage() {
+            localStorage.setItem("tasks", JSON.stringify(tasks));
+        }
+    </script>
+</body>
+</html>
